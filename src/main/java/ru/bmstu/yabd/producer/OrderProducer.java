@@ -16,6 +16,9 @@ public class OrderProducer {
     public void send(OrderEvent event) {
         // TODO 3: Отправьте событие в топик "orders" с ключом orderId
         // Подсказка: kafkaTemplate.send("orders", event.getOrderId(), event)
-        throw new UnsupportedOperationException("TODO 3: реализуйте отправку события в Kafka");
+
+        log.info("Sending order: {}", event.orderId());
+        kafkaTemplate.send("orders", event.orderId(), event);
+
     }
 }

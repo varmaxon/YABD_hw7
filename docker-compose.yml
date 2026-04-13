@@ -4,6 +4,7 @@ services:
     image: confluentinc/cp-kafka:7.6.0
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -14,15 +15,15 @@ services:
       #   - PLAINTEXT://kafka:29092 (для контейнеров, внутренняя сеть Docker)
       #   - EXTERNAL://localhost:9092 (для хост-машины)
       # Обновите LISTENER_SECURITY_PROTOCOL_MAP, LISTENERS, ADVERTISED_LISTENERS
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      CLUSTER_ID: seminar7-kafka-cluster-id-01
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qg==
     healthcheck:
       test: kafka-topics --bootstrap-server localhost:9092 --list
       interval: 10s
@@ -35,7 +36,7 @@ services:
       - "8088:8088"
     environment:
       # TODO 7: Измените bootstrap-сервер на внутренний адрес kafka:29092
-      KSQL_BOOTSTRAP_SERVERS: localhost:9092
+      KSQL_BOOTSTRAP_SERVERS: kafka:29092
       KSQL_LISTENERS: http://0.0.0.0:8088
       KSQL_KSQL_SERVICE_ID: seminar7-ksql
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
@@ -51,7 +52,7 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       # TODO 8: Измените bootstrap-сервер на внутренний адрес kafka:29092
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: localhost:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
     depends_on:
       kafka:
         condition: service_healthy
@@ -62,7 +63,7 @@ services:
       - "8080:8080"
     environment:
       # TODO 9: Измените bootstrap-сервер на внутренний адрес kafka:29092
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     depends_on:
       kafka:
         condition: service_healthy
